@@ -1,10 +1,8 @@
 package config
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"strings"
 	"time"
 )
@@ -428,80 +426,3 @@ var (
 	_ json.Unmarshaler = (*OptionalInteger)(nil)
 	_ json.Marshaler   = (*OptionalInteger)(nil)
 )
-
-type swarmLimits doNotUse
-
-var _ json.Unmarshaler = swarmLimits(false)
-
-func (swarmLimits) UnmarshalJSON(b []byte) error {
-	d := json.NewDecoder(bytes.NewReader(b))
-	for {
-		switch tok, err := d.Token(); err {
-		case io.EOF:
-			return nil
-		case nil:
-			switch tok {
-			case json.Delim('{'), json.Delim('}'):
-				// accept empty objects
-				continue
-			}
-			//nolint
-			return fmt.Errorf("The Swarm.ResourceMgr.Limits configuration has been removed in Kubo 0.19 and should be empty or not present. To set custom libp2p limits, read https://github.com/ipfs/kubo/blob/master/docs/libp2p-resource-management.md#user-supplied-override-limits")
-		default:
-			return err
-		}
-	}
-}
-
-type experimentalAcceleratedDHTClient doNotUse
-
-var _ json.Unmarshaler = experimentalAcceleratedDHTClient(false)
-
-func (experimentalAcceleratedDHTClient) UnmarshalJSON(b []byte) error {
-	d := json.NewDecoder(bytes.NewReader(b))
-	for {
-		switch tok, err := d.Token(); err {
-		case io.EOF:
-			return nil
-		case nil:
-			switch tok {
-			case json.Delim('{'), json.Delim('}'):
-				// accept empty objects
-				continue
-			}
-			//nolint
-			return fmt.Errorf("The Experimental.AcceleratedDHTClient key has been moved to Routing.AcceleratedDHTClient in Kubo 0.21, please use this new key and remove the old one.")
-		default:
-			return err
-		}
-	}
-}
-
-// doNotUse is a type you must not use, it should be struct{} but encoding/json
-// does not support omitempty on structs and I can't be bothered to write custom
-// marshalers on all structs that have a doNotUse field.
-type doNotUse bool
-
-type graphsyncEnabled doNotUse
-
-var _ json.Unmarshaler = graphsyncEnabled(false)
-
-func (graphsyncEnabled) UnmarshalJSON(b []byte) error {
-	d := json.NewDecoder(bytes.NewReader(b))
-	for {
-		switch tok, err := d.Token(); err {
-		case io.EOF:
-			return nil
-		case nil:
-			switch tok {
-			case json.Delim('{'), json.Delim('}'), false:
-				// accept empty objects and false
-				continue
-			}
-			//nolint
-			return fmt.Errorf("Support for Experimental.GraphsyncEnabled has been removed in Kubo 0.25.0, please remove this key. For more details see https://github.com/ipfs/kubo/pull/9747.")
-		default:
-			return err
-		}
-	}
-}

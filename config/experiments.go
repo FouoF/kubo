@@ -10,7 +10,4 @@ type Experiments struct {
 	OptimisticProvide             bool
 	OptimisticProvideJobsPoolSize int
 	GatewayOverLibp2p             bool `json:",omitempty"`
-
-	GraphsyncEnabled     graphsyncEnabled                 `json:",omitempty"`
-	AcceleratedDHTClient experimentalAcceleratedDHTClient `json:",omitempty"`
 }
